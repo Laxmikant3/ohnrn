@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-28T08:40:06.184985Z",
+  "retrieval_events": [
+    {
+      "timestamp": "2026-10-28T08:40:06.181031Z",
+      "operation": "actual",
+      "endpoint": "/datasets/FUELHH/stream",
+      "params": {
+        "settlementDateFrom": "2026-01-01",
+        "settlementDateTo": "2026-01-31",
+        "fuelType": "WIND"
+      },
+      "status": "success",
+      "records": 1488,
+      "attempts": 1,
+      "duration_seconds": 1.488,
+      "error": null
+    },
+    {
+      "timestamp": "2026-10-28T08:40:07.588247Z",
+      "operation": "forecast",
+      "endpoint": "/datasets/WINDFOR/stream",
+      "params": {
+        "publishDateTimeFrom": "2025-12-24T00:00:00Z",
+        "publishDateTimeTo": "2026-01-05T00:00:00Z"
+      },
+      "status": "success",
+      "records": 7008,
+      "attempts": 1,
+      "duration_seconds": 1.317,
+      "error": null
+    },
+    {
+      "timestamp": "2026-10-28T08:40:09.177405Z",
+      "operation": "forecast",
+      "endpoint": "/datasets/WINDFOR/stream",
+      "params": {
+        "publishDateTimeFrom": "2026-01-05T00:00:01Z",
+        "publishDateTimeTo": "2026-01-17T00:00:01Z"
+      },
+      "status": "success",
+      "records": 7008,
+      "attempts": 1,
+      "duration_seconds": 1.499,
+      "error": null
+    },
+    {
+      "timestamp": "2026-10-28T08:40:10.638578Z",
+      "operation": "forecast",
+      "endpoint": "/datasets/WINDFOR/stream",
+      "params": {
+        "publishDateTimeFrom": "2026-01-17T00:00:02Z",
+        "publishDateTimeTo": "2026-01-29T00:00:02Z"
+      },
+      "status": "success",
+      "records": 7008,
+      "attempts": 1,
+      "duration_seconds": 1.347,
+      "error": null
+    },
+    {
+      "timestamp": "2026-10-28T08:40:11.980613Z",
+      "operation": "forecast",
+      "endpoint": "/datasets/WINDFOR/stream",
+      "params": {
+        "publishDateTimeFrom": "2026-01-29T00:00:03Z",
+        "publishDateTimeTo": "2026-02-03T23:59:59Z"
+      },
+      "status": "success",
+      "records": 3504,
+      "attempts": 1,
+      "duration_seconds": 1.304,
+      "error": null
+    }
+  ],
+  "last_success": {
+    "actual": "2026-10-28T08:40:04.677629Z",
+    "forecast": "2026-10-28T08:40:04.677629Z"
+  },
+  "files": {
+    "actual": {
+      "file": "actual_wind.json",
+      "bytes": 257270,
+      "sha256": "c4501674953d68102430d28e95e43a92fb0934f72dcd56bf96ead8db2f578660",
+      "records": 1488,
+      "retrieved_at": "2026-10-28T08:40:04.677629Z"
+    },
+    "forecast": {
+      "file": "forecast_wind.json",
+      "bytes": 1942364,
+      "sha256": "33857ed664d4c9aef71ea09b359a8893344349b67c13153cad90bf2843acb89c",
+      "records": 19487,
+      "retrieved_at": "2026-10-28T08:40:04.677629Z"
+    }
+  },
+  "updated_at": "2026-10-28T08:40:12.040627Z",
+  "is_synthetic": false
+}

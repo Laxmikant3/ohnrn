@@ -1,0 +1,57 @@
+# WindIQ — two-container deployment.
+# Each service builds from its own subdirectory; the verified cache is bind-mounted
+# from the host so the API serves the committed Elexon data immediately.
+
+name: windiq
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: windiq/api:1.0.0
+    container_name: windiq-api
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      MARKET_TIMEZONE: ${MARKET_TIMEZONE:-Europe/London}
+      ANALYSIS_START: ${ANALYSIS_START:-2026-01-01}
+      ANALYSIS_END: ${ANALYSIS_END:-2026-01-31}
+      DEFAULT_CUTOFF_TIME: ${DEFAULT_CUTOFF_TIME:-11:00}
+      DEFAULT_CUTOFF_DAYS_BEFORE: ${DEFAULT_CUTOFF_DAYS_BEFORE:-1}
+      MAPE_MIN_ACTUAL_MW: ${MAPE_MIN_ACTUAL_MW:-1.0}
+      ELEXON_BASE_URL: ${ELEXON_BASE_URL:-https://data.elexon.co.uk/bmrs/api/v1}
+      ELEXON_TIMEOUT_SECONDS: ${ELEXON_TIMEOUT_SECONDS:-60}
+      CACHE_STALE_AFTER_HOURS: ${CACHE_STALE_AFTER_HOURS:-168}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
+      ALLOW_REFRESH: ${ALLOW_REFRESH:-false}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+    volumes:
+      # Bind-mount the committed cache. A named volume would shadow the cache
+      # baked into the image and start the UI with no data. Ingestion writes to
+      # this same host directory, so it persists across container restarts.
+      - ./backend/data/cache:/app/data/cache
+    ports:
+      - "${API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/v1/health?probe=false"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+    image: windiq/web:1.0.0
+    container_name: windiq-web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-8080}:8080"

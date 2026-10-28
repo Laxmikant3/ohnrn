@@ -1,0 +1,42 @@
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+dist/
+build/
+
+# --- Node / Vite ----------------------------------------------------------
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+frontend/tsconfig.node.tsbuildinfo
+
+# --- Environment / secrets ------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# --- Data cache -----------------------------------------------------------
+# The verified January 2026 cache is committed intentionally so the demo runs
+# offline and deterministically. Temporary files must never be committed.
+backend/data/cache/*.tmp
+backend/data/cache/**/*.tmp
+backend/data/cache/.write-*
+
+# --- Tooling --------------------------------------------------------------
+.tmp-swagger.json
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log

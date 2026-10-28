@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --sidebar-width: 244px;
+  --sidebar-width-collapsed: 76px;
+  --topbar-height: 60px;
+  --surface: #0d1420;
+  --surface-raised: #111927;
+  --border: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.22);
+  --text-primary: #e8eef7;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-950 text-slate-200 antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+  background-image:
+    radial-gradient(900px 500px at 78% -8%, rgba(34, 211, 238, 0.055), transparent 65%),
+    radial-gradient(700px 420px at 10% 108%, rgba(45, 212, 191, 0.035), transparent 70%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.28);
+  color: #f8fafc;
+}
+
+/* Scrollbars ---------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.55);
+  background-clip: content-box;
+}
+
+/* Focus --------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.75);
+  outline-offset: 2px;
+}
+
+/* Reusable primitives ------------------------------------------------ */
+@layer components {
+  .panel {
+    @apply rounded-xl border border-white/[0.07] bg-ink-850/90 shadow-panel;
+  }
+
+  .panel-header {
+    @apply flex items-start justify-between gap-4 border-b border-white/[0.06] px-4 py-3.5;
+  }
+
+  .panel-title {
+    @apply text-[13px] font-semibold tracking-[-0.01em] text-slate-100;
+  }
+
+  .panel-subtitle {
+    @apply mt-0.5 text-[11px] leading-4 text-slate-500;
+  }
+
+  .num {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .label-caps {
+    @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500;
+  }
+
+  .hairline {
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.18), transparent);
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950;
+  }
+
+  .table-shell {
+    @apply w-full border-collapse text-[12.5px];
+  }
+
+  .table-shell thead th {
+    @apply sticky top-0 z-10 whitespace-nowrap border-b border-white/[0.07] bg-ink-800/95 px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500 backdrop-blur;
+  }
+
+  .table-shell tbody td {
+    @apply whitespace-nowrap border-b border-white/[0.04] px-3 py-[9px] text-slate-300;
+  }
+
+  .table-shell tbody tr {
+    @apply transition-colors duration-100;
+  }
+
+  .table-shell tbody tr:hover {
+    @apply bg-white/[0.025];
+  }
+
+  .table-shell tbody tr[data-interactive="true"] {
+    @apply cursor-pointer;
+  }
+}
+
+/* Recharts polish ----------------------------------------------------- */
+.recharts-cartesian-axis-tick text {
+  fill: #64748b;
+  font-size: 10.5px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.recharts-cartesian-grid line {
+  stroke: rgba(148, 163, 184, 0.09);
+}
+.recharts-curve.recharts-tooltip-cursor {
+  stroke: rgba(34, 211, 238, 0.35);
+}
+.recharts-default-tooltip {
+  border-radius: 8px !important;
+}
+.recharts-surface:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
