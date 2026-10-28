@@ -6,6 +6,10 @@ The product is deliberately narrow: **Elexon BMRS FUELHH (`fuelType=WIND`) actua
 
 ![Stack](https://img.shields.io/badge/FastAPI-0.162-009688) ![Stack](https://img.shields.io/badge/React-18-61DAFB) ![Stack](https://img.shields.io/badge/TypeScript-5.7-3178C6) ![Data](https://img.shields.io/badge/data-Elexon%20BMRS-0f172a)
 
+[![CI](https://github.com/Laxmikant3/ohnrn/actions/workflows/ci.yml/badge.svg)](https://github.com/Laxmikant3/ohnrn/actions/workflows/ci.yml)
+
+**Live:** [ohnrn-web.vercel.app](https://ohnrn-web.vercel.app) · **API:** [ohnrn-api.vercel.app/api/v1](https://ohnrn-api.vercel.app/api/v1) · **Docs:** [ohnrn-api.vercel.app/docs](https://ohnrn-api.vercel.app/docs)
+
 ---
 
 ## Contents
