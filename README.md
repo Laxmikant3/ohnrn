@@ -23,7 +23,7 @@ The product is deliberately narrow: **Elexon BMRS FUELHH (`fuelType=WIND`) actua
 - [Project layout](#project-layout)
 - [Configuration](#configuration)
 - [Testing and quality gates](#testing-and-quality-gates)
-- [Deployment guide](#deployment-guide)
+- [Live deployment](#live-deployment)
 - [Limitations and non-goals](#limitations-and-non-goals)
 
 ---
@@ -361,29 +361,53 @@ Verified state at delivery:
 
 CI (`.github/workflows/ci.yml`) runs backend lint + tests on Python 3.12, frontend lint + build on Node 20, then validates both Docker images build.
 
-## Deployment guide
+## Live deployment
+
+| Component | URL | Platform |
+| --- | --- | --- |
+| Web app | https://ohnrn-web.vercel.app | Vercel — Vite static build |
+| API | https://ohnrn-api.vercel.app/api/v1 | Vercel — Python/FastAPI function |
+| API docs | https://ohnrn-api.vercel.app/docs | FastAPI OpenAPI UI |
+| Health | https://ohnrn-api.vercel.app/api/v1/health?probe=false | dataset + cache checks |
+
+Verified against the live URLs, not just locally:
+
+- `/api/v1/health` → `dataset_loaded: true`, `is_synthetic: false`, 1,488 actuals, 2,102 expanded forecast intervals.
+- `/api/v1/overview` → MAE 2,126.12 MW, RMSE 2,620.80 MW, bias +1,840.30 MW, coverage 100% (identical to the local figures).
+- `/api/v1/export` → 1,488 rows with `X-Row-Count: 1,488`.
+- All six routes load with zero console errors; the Accuracy filter moves the paired count from 1,488 to 720.
+- CORS preflight from the Vercel origin returns `Access-Control-Allow-Origin: https://ohnrn-web.vercel.app`.
+
+### Backend on Vercel (serverless FastAPI)
+
+Vercel's Python runtime detects the `app` instance in `backend/app/main.py`, so no adapter or handler file is needed.
+
+- **Root directory:** `backend`.
+- **Dependencies:** declared in `[project].dependencies` in `backend/pyproject.toml`. Vercel prefers `pyproject.toml` over `requirements.txt`; when it was missing dependencies the function failed with `ModuleNotFoundError: No module named 'fastapi'`.
+- **Cache bundling:** `backend/vercel.json` sets `includeFiles: "data/cache/**"` so the committed JSON cache ships with the function. Without it the API starts but reports no dataset.
+- **Read-only filesystem:** the function serves the cache and never ingests. `ALLOW_REFRESH=false`, so `POST /api/v1/data/refresh` stays disabled.
+- **Environment:** `ENVIRONMENT=production`, `CORS_ORIGINS=https://ohnrn-web.vercel.app`, `ALLOW_REFRESH=false`.
+- **Cold starts:** the first request after idle takes roughly 1–2 s while pandas/numpy load; subsequent requests are fast.
+
+```bash
+cd backend
+vercel deploy --prod --yes
+```
 
 ### Frontend on Vercel
 
-1. Import the repository and set **Root Directory** to `frontend`.
-2. Framework preset: **Vite**. Build command `npm run build`, output `dist`.
-3. Set `VITE_API_BASE_URL` to the public backend URL, e.g. `https://<your-backend-host>/api/v1`.
-4. Vercel's Vite preset handles SPA fallback automatically. If you deploy the static `dist/` elsewhere, configure a catch-all rewrite to `/index.html` that excludes real files and the `/api` prefix; otherwise deep links such as `/accuracy` will 404.
+- **Root directory:** `frontend`.
+- `frontend/vercel.json` sets the Vite framework, `dist` output and a catch-all rewrite to `index.html` that excludes `/api/`, so deep links such as `/accuracy` work.
+- `VITE_API_BASE_URL=https://ohnrn-api.vercel.app/api/v1` is baked in at build time; changing the backend URL requires a redeploy.
 
-The backend must allow the Vercel origin in `CORS_ORIGINS`.
+```bash
+cd frontend
+vercel deploy --prod --yes
+```
 
-### Backend on Render / Fly.io / any container host
+### Alternative: single-origin Docker deployment
 
-- Build from `backend/Dockerfile` (Python 3.12 slim, non-root, healthcheck on `/api/v1/health?probe=false`).
-- Set `ENVIRONMENT=production`, `CORS_ORIGINS=https://<your-vercel-domain>`, and keep `ALLOW_REFRESH=false` unless you need the protected refresh route.
-- Mount a persistent disk at `/app/data/cache` if you intend to re-ingest. Otherwise bake the committed cache into the image, which is what the Dockerfile does.
-- Do **not** run ingestion on every boot; it is an explicit operational action.
-
-### Single-origin alternative
-
-Deploy both containers with `docker-compose.yml` behind one host: nginx serves the SPA and proxies `/api/` to the API. This avoids CORS entirely and is the simplest production topology.
-
-> No live deployment URL is claimed in this repository. The figures above come from a locally running instance against the committed cache.
+Deploy both containers with `docker-compose.yml` behind one host: nginx serves the SPA and proxies `/api/` to the API. This avoids CORS entirely and keeps the API as a long-lived process with a writable cache.
 
 ## Limitations and non-goals
 
@@ -392,7 +416,7 @@ Deploy both containers with `docker-compose.yml` behind one host: nginx serves t
 - WINDFOR is hourly; expansion to 30-minute settlement periods is an explicit modelling assumption, not additional information.
 - Only national wind is covered. There is no regional, offshore/onshore split, price, demand, interconnector or balancing data.
 - The application does not size trades, hedges or bids and must not be used as though it could.
-- Docker Compose has not been executed in the delivery environment (daemon unavailable); see the verification note above.
+- The Vercel deployment is read-only: it serves the committed January 2026 cache and cannot re-ingest. Re-ingestion requires the Docker/host path or a rebuild with a fresh cache.
 
 ---
 

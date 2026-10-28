@@ -435,6 +435,26 @@ The `/api/` proxy uses `resolver 127.0.0.11` with a variable `proxy_pass`, so th
 
 `docker compose config` also parses cleanly. The bind-mounted cache (`./backend/data/cache:/app/data/cache`) is the directory the host-side ingestion CLI writes, so container and host always read the same verified files.
 
+### 9.5 Live Vercel deployment
+
+| Component | URL | Project |
+| --- | --- | --- |
+| Web app | https://ohnrn-web.vercel.app | `ohnrn-web` (Vite, static) |
+| API | https://ohnrn-api.vercel.app/api/v1 | `ohnrn-api` (FastAPI, Python 3.12) |
+| Repository | https://github.com/Laxmikant3/ohnrn | public |
+
+The API runs as a single Vercel Function. Vercel's Python runtime finds the `app` instance in `backend/app/main.py`; no `api/index.py` adapter exists.
+
+Three deployment-specific details matter:
+
+1. **Dependencies live in `pyproject.toml`.** Vercel installs from `[project].dependencies` and ignores `requirements.txt` when a `pyproject.toml` is present. The first deploy failed with `ModuleNotFoundError: No module named 'fastapi'` because the file had no dependency list.
+2. **The cache must be bundled.** `backend/vercel.json` sets `functions["app/main.py"].includeFiles = "data/cache/**"`. The function bundle is ~2.2 MB and contains the committed JSON cache plus manifest.
+3. **The filesystem is read-only.** Only ingestion writes; analytics only read, so the serverless API serves the same verified cache. `ALLOW_REFRESH=false` keeps the refresh route disabled.
+
+Environment variables on `ohnrn-api`: `ENVIRONMENT=production`, `CORS_ORIGINS=https://ohnrn-web.vercel.app`, `ALLOW_REFRESH=false`. On `ohnrn-web`: `VITE_API_BASE_URL=https://ohnrn-api.vercel.app/api/v1`, baked in at build time.
+
+Live verification: health reports `dataset_loaded: true`, `is_synthetic: false`, 1,488 actuals and 2,102 expanded intervals; `/overview` returns MAE 2,126.12 MW, RMSE 2,620.80 MW and bias +1,840.30 MW; `/export` returns 1,488 rows; the six routes load with zero console errors; the Accuracy preset changes 1,488 paired to 720; CORS preflight returns the Vercel origin. Cold start after idle is roughly 1–2 s while pandas imports.
+
 ## 10. Operations
 
 ### 10.1 Seed or refresh the cache

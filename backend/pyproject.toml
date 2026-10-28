@@ -3,6 +3,18 @@ name = "windiq-backend"
 version = "1.0.0"
 description = "WindIQ — UK national wind forecast intelligence API"
 requires-python = ">=3.12"
+# Vercel installs from pyproject.toml when it is present, so these must stay in
+# sync with requirements.txt. uvicorn is omitted here: Vercel's Python runtime
+# serves the ASGI app itself, and the Docker/local path installs requirements.txt.
+dependencies = [
+    "fastapi==0.162.0",
+    "pydantic==2.14.1",
+    "pydantic-settings==2.16.1",
+    "httpx==0.28.1",
+    "pandas==2.3.3",
+    "numpy==2.5.4",
+    "python-dateutil==3.0.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

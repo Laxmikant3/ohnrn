@@ -357,6 +357,14 @@ Open `.github/workflows/ci.yml`:
 - `frontend` job — Node 20, `npm ci`, `npm run lint`, `npm run build`.
 - `docker` job — Buildx builds both images with GitHub Actions layer cache. This is the gate for Dockerfile regressions; a manual `docker compose up --build` covered startup and routing.
 
+**Live deployment (open the URLs):**
+
+- Web app: https://ohnrn-web.vercel.app
+- API: https://ohnrn-api.vercel.app/api/v1 — docs at `/docs`
+- Health: https://ohnrn-api.vercel.app/api/v1/health?probe=false
+
+> "The frontend is a static Vite build on Vercel; the API is a Vercel Python function. Vercel detects the FastAPI `app` in `backend/app/main.py`, so there is no adapter. Dependencies come from `pyproject.toml` — Vercel ignores `requirements.txt` when that file exists — and `vercel.json` bundles `data/cache/**` with the function. The function filesystem is read-only, which is fine: the API only reads the cache and the refresh endpoint stays disabled. Live KPIs match the local run exactly: MAE 2,126.12 MW over 1,488 paired intervals, export 1,488 rows, all six routes with zero console errors."
+
 Open `docker-compose.yml`:
 
 - `api` builds `backend/`, bind-mounts the committed cache, exposes 8000, healthchecks `/api/v1/health?probe=false`.

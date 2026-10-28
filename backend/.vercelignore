@@ -1,0 +1,10 @@
+# Vercel upload exclusions for the API project.
+# The verified cache under data/cache/ is intentionally included: the API is
+# read-only on Vercel and serves the committed January 2026 dataset.
+.venv/
+.pytest_cache/
+.ruff_cache/
+tests/
+**/__pycache__/
+*.py[cod]
+*.log
